@@ -24,14 +24,12 @@ exports.createPost = async (req,res,next) =>{
     if(typeof postObject === undefined){
         return;
     }
-    createHtmlFile(postObject.content);
     charcters.forEach((char)=>{
         let index = postObject.title.indexOf(char);
         if(index !== -1){
             postObject.postUrl = postObject.postUrl.replace(char,'_');
         }
      });
-     /*
     createFile(postObject).then(()=>{ 
         console.log("filed crated")      
         const ADDRESS = `${req.protocol}://${req.get('host')}/assets/`;
@@ -53,7 +51,7 @@ exports.createPost = async (req,res,next) =>{
         }); 
     }).catch(error=>{
         console.log("error: "+error);
-    })*/
+    })
 }
 
 const createFile = async (post) =>{
