@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const post = require('../models/post');
 const Post = require('../models/post');
 const DIRECTORY_FILE = 'assets/files/';
 const charcters = ['\\','/','*','>','<','?',':'];
@@ -13,6 +14,24 @@ exports.getOneArticle = (req,res,next)=>{
         res.status(404).json({message:"not found"})
     })
 };
+
+exports.deleteOnePost = (req,res,next)=>{
+    Post.deleteOne({title:req.params.title}).
+        then(()=>{
+            res.status(200).json({
+                message: 'post delted  !!'
+            })
+        }).
+        catch(error=>{
+            res.status(404).json({
+                erro: `error while deleting post ${error}`
+            })
+        })
+}
+
+exports.modifyArticle = (req,res,next) =>{
+
+}
 
 exports.getAllArticles = async (req,res,next) =>{
     const articles = await Post.find();
@@ -37,9 +56,8 @@ exports.createPost = async (req,res,next) =>{
             ...postObject,
             imageUrl: ADDRESS+`images/${req.file.filename}`,
             content: ADDRESS+`files/${postObject.postUrl}`,
-            userId: "1"
+            userId: "1" //TODO SENT USER ID FROM FRONT END
         });
-        console.log(post);
         post.save().then(()=>{
             res.status(201).json({
                 message: "Post addeed"
