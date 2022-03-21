@@ -16,8 +16,10 @@ exports.getOneArticle = (req,res,next)=>{
 };
 
 exports.deleteOnePost = (req,res,next)=>{
-    Post.deleteOne({postUrl:req.params.postUrl}).
+    console.log(`id: ${req.params.id}`);
+    Post.deleteOne({_id:req.params.id}).
         then(()=>{
+            console.log(`post founded`);
             res.status(200).json({
                 message: 'post delted  !!'
             })
