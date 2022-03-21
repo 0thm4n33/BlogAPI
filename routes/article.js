@@ -9,6 +9,8 @@ route.get('/:title',blogControler.getOneArticle);
 
 route.post('/',multer,blogControler.createPost);
 
+route.put('/:id',multer,blogControler.modifyArticle);
+
 route.delete('/:id',blogControler.deleteOnePost);
 
 module.exports = route;

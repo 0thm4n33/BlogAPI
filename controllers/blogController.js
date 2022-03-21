@@ -1,4 +1,5 @@
 const fs = require('fs');
+const multer = require('multer');
 const path = require('path');
 const post = require('../models/post');
 const Post = require('../models/post');
@@ -31,28 +32,41 @@ exports.deleteOnePost = (req,res,next)=>{
         })
 }
 
-exports.modifyArticle = (req,res,next) =>{
 
-}
 
 exports.getAllArticles = async (req,res,next) =>{
     const articles = await Post.find();
     res.status(201).json({posts:articles});
-}  
+}
 
-exports.createPost = async (req,res,next) =>{
+const verify = (req) =>{
     const postObject = JSON.parse(req.body.post);
     if(typeof postObject === undefined){
-        return;
+        return '';
     }
     charcters.forEach((char)=>{
         let index = postObject.title.indexOf(char);
         if(index !== -1){
-            postObject.postUrl = postObject.postUrl.replace(char,'_');
+            postObject.postUrl = postObject.postUrl.replace(char,'-');
         }
      });
+     return postObject;
+}
+
+exports.modifyArticle = (req,res,next) =>{
+   //TODO modify function inside rollback
+   const postObject = JSON.parse(req.body.post);
+   Post.deleteOne({_id:postObject.id}).then(()=>{
+     multer,this.createPost(req,res,next)
+   }).catch(error =>{
+       res.status(500).json({error})
+   })
+}
+
+exports.createPost = async (req,res,next) =>{
+    const postObject = verify(req);
+    if(postObject === '') return;
     createFile(postObject).then(()=>{ 
-        console.log("filed crated")      
         const ADDRESS = `${req.protocol}://${req.get('host')}/assets/`;
         const post = new Post({
             ...postObject,
