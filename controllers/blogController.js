@@ -16,7 +16,7 @@ exports.getOneArticle = (req,res,next)=>{
 };
 
 exports.deleteOnePost = (req,res,next)=>{
-    Post.deleteOne({title:req.params.title}).
+    Post.deleteOne({postUrl:req.params.postUrl}).
         then(()=>{
             res.status(200).json({
                 message: 'post delted  !!'
