@@ -58,6 +58,9 @@ exports.modifyArticle = (req,res,next) =>{
    const postObject = JSON.parse(req.body.post);
    Post.deleteOne({_id:postObject.id}).then(()=>{
      multer,this.createPost(req,res,next)
+     res.status(200).json({
+         message: 'post modified 1'
+     })
    }).catch(error =>{
        res.status(500).json({error})
    })
