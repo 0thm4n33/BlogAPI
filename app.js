@@ -8,6 +8,7 @@ const userRouter = require('./routes/user');
 const categoryRouter = require('./routes/category');
 
 //Acces base de donnee
+console.log('connexion moongose !')
 mongoose.connect('mongodb+srv://root:essaidi1@cluster0.pyrpn.mongodb.net/Blog?retryWrites=true&w=majority',
     {
         useNewUrlParser:true,
@@ -21,17 +22,18 @@ mongoose.connect('mongodb+srv://root:essaidi1@cluster0.pyrpn.mongodb.net/Blog?re
 
 
 
+
 //regler le probleme CROS
 app.use((req,res,next)=>{
    res.setHeader('Access-Control-Allow-Origin','*');
    res.setHeader('Access-Control-Allow-Headers','Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
    res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, PATCH, OPTIONS');
-   console.log('header setted');
    next();
 });
 
 //Limit JSON
 app.use(express.json({limit: '50mb'}));
+
 
 //routes
 app.use('/blog/category',categoryRouter);
