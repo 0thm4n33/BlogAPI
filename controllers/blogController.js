@@ -4,8 +4,12 @@ const path = require('path');
 const post = require('../models/post');
 const Post = require('../models/post');
 const DIRECTORY_FILE = 'assets/files/';
+const CLOUD_BUCKET = 'back-end-blog.appspot.com';
+const {Storage, Bucket} = require('@google-cloud/storage');
+const {format} = require('util');
 const charcters = ['\\','/','*','>','<','?',':'];
-
+const storage = new Storage();
+const bucket = storage.bucket(CLOUD_BUCKET);
 exports.getOneArticle = (req,res,next)=>{
     Post.findOne(
         { postUrl: req.params.title })
@@ -39,18 +43,17 @@ exports.getAllArticles = async (req,res,next) =>{
     res.status(201).json({posts:articles});
 }
 
-const verify = (req) =>{
+exports.verifyUrl = (req,res,next) =>{
     const postObject = JSON.parse(req.body.post);
-    if(typeof postObject === undefined){
-        return '';
-    }
+    console.log(`verifiy function \n ${postObject}`)
     charcters.forEach((char)=>{
         let index = postObject.title.indexOf(char);
         if(index !== -1){
             postObject.postUrl = postObject.postUrl.replace(char,'-');
         }
      });
-     return postObject;
+     req.body.post = postObject;
+     next();
 }
 
 exports.modifyArticle = (req,res,next) =>{
@@ -67,15 +70,15 @@ exports.modifyArticle = (req,res,next) =>{
 }
 
 exports.createPost = async (req,res,next) =>{
-    const postObject = verify(req);
-    if(postObject === '') return;
-    createFile(postObject).then(()=>{ 
-        const ADDRESS = `${req.protocol}://${req.get('host')}/assets/`;
+    const postObject = req.body.post;
+    if(postObject === '' || postObject.imageUrl === undefined) return;
+    console.log(`image url ${req.body.post.imageUrl}`);
+    writeFile(postObject).then((postUrl)=>{
+        console.log(`post url : ${postUrl}`);
         const post = new Post({
             ...postObject,
-            imageUrl: ADDRESS+`images/${req.file.filename}`,
-            content: ADDRESS+`files/${postObject.postUrl}`,
-            userId: "1" //TODO SENT USER ID FROM FRONT END
+            content: postUrl,
+            userId: "1" //TODO GET ID FROM JWT
         });
         post.save().then(()=>{
             res.status(201).json({
@@ -88,7 +91,7 @@ exports.createPost = async (req,res,next) =>{
         }); 
     }).catch(error=>{
         console.log("error: "+error);
-    })
+    });
 }
 
 const createFile = async (post) =>{
@@ -98,6 +101,23 @@ const createFile = async (post) =>{
         if(err){
             throw err;
         } 
+    });
+}
+
+const writeFile = (post) =>{
+    console.log('writing ....');
+    return new Promise((successCall,failCall)=>{
+        const nameFile = post.postUrl;
+        let blob = bucket.file(nameFile);
+        let blobStream = blob.createWriteStream();
+        blobStream.on('error',()=>{
+            failCall('error while writing ...')
+        })
+        blobStream.on('finish', async ()=>{
+            await blob.makePublic();
+            successCall(format(`https://storage.googleapis.com/${bucket.name}/${nameFile}`));
+        });
+        blobStream.end(post.content);
     });
 }
 

@@ -6,7 +6,7 @@ const normalizePort = val =>{
     else if(port > 0) return port;
     else return null;
 }
-const port = normalizePort('3030' || process.env.PORT);
+const port = normalizePort('8080' || process.env.PORT);
 app.set('port',port);
 const server = http.createServer(app);
 server.listen(port);
