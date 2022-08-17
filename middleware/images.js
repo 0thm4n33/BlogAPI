@@ -12,8 +12,13 @@ const multer = Multer({
     },
 });
 
+const config ={
+    projectId: 'back-end-blog',
+    keyFileName : '../back-end-blog-f504f39676a6.json'
+}
+
 //bucket config
-const storage = new Storage();
+const storage = new Storage(config.projectId,config.keyFileName);
 const bucket = storage.bucket(CLOUD_BUCKET);
 console.log(`bucket name : ${bucket.name}`);
 const uploadToGCS = (req,res,next) => {
